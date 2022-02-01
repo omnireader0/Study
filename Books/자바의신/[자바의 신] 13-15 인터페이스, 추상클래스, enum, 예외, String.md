@@ -168,3 +168,155 @@ public enum OverTimeValues{
 1. 변수를 final로 선언하면 어떤 제약이 발생하나요?
 
 - 변경 불가
+
+# 14장 예외 처리
+
+### 예외
+
+예상한, 혹은 예상치 못한 일이 발생하는 것을 미리 예견하고 안전장치를 하는 것
+
+컴파일은 되지만 실행할 때 오류가 난다.
+
+### try catch 문
+
+- try 뒤에 중괄호로 예외가 발생하는 문장들을 묶어 주고, catch 괄호 안에 예외가 발생했을 때 처리를 해준다.
+
+- try 블록 안에서 예외 발생되면 그 뒤 문장은 실행되지 않고 catch블록으로 넘어간다.
+
+- try 블록 안에서 예외가 발생하지 않으면 try 내에 모든 문장이 실행되고 try-catch문장 이후의 내용이 실행된다.
+
+- catch블록은 여러 개 작성해도 된다.
+
+- catch블록은 순서가 매우 중요하다.
+
+- catch문장에서 사용할 변수는 try앞에 미리 선언해 놓는다. try문 안에 선언되어 있으면 사용할 수 없다.
+
+- try catch finally 문
+
+  - finally : 어떠한 경우에도 반드시 실행해야 하는 코드 블록
+
+- 모든 예외의 부모 클래스는 java.lang.Exception 클래스다.
+
+- **가장 마지막 catch블록에 Exception클래스를 catch하는 것을 권장한다.** 미처 생각하지 못한 예외가 발생했을 때 처리하기 위함
+
+  catch 블록 중 발생한 예외와 관련있는 블록이 없으면, 예외가 발생되면서 해당 쓰레드는 끝난다. 따라서, 마지막 catch블록에는 Exception 클래스로 묶어주는 버릇을 들여 놓아야 안전한 프로그램이 될 수 있다.
+
+```java
+public void multicatch(){
+      int[] intArray = new int[5];
+      try{
+    	  System.out.println(intArray[5]);
+    	} catch (ArrayIndexOutOfBoundsException e){
+    	  System.out.println("ArrayIndexOutOfBoundsException occurred");
+    	} catch (Exception e){
+    	  System.out.println(intArray.length);
+    	}
+  }
+
+  // 출력
+  // ArrayIndexOutOfBoundsException occurred
+```
+
+- **위 예제이서 두 개의 catch문 순서를 바꾸면 컴파일 에러 발생**
+- Exception 클래스는 모든 클래스의 부모 클래스이고, ArrayIndexOutOfBoundsException 클래스는 Exception 클래스의 자식 클래스이기 때문이다. 부모 예외 클래스가 이미 catch 하고, 자식 클래스가 그 아래에서 catch하도록 되어 있는 경우 자식 클래스가 예외를 처리할 수 없어 컴파일 에러가 발생한다.
+
+### 예외 종류 3가지
+
+- ```
+  checked exception
+  ```
+
+  - error, runtime exception(unchecked exception) 제외한 모든 에러
+
+- ```
+  error
+  ```
+
+  - 자바 프로그램 밖에서 발생한 예외
+  - Error와 Exception으로 끝나는 오류의 가장 큰 차이는 프로그램 안에서 발생했는지, 밖에서 발생했는지 여부
+  - Error는 프로세스에 영향을 주고, Exception은 쓰레드에만 영향을 준다.
+
+- ```
+  runtime exception 혹은 unchecked exception
+  ```
+
+  - 예외가 발생한 것을 미리 감지하기 못했을 때 발생
+  - RuntimeException을 확장한 예외들
+  - 이 예외를 묶어주지 않는다고 해서 컴파일할 때 예외가 발생하지 않지만실행시에는 발생할 가능성이 있다.
+  - 호출하는 메소드에 try-catch로 묶어 주는 것이 좋다.
+
+### Throwable
+
+Exception과 Error 클래스는 java.lang.Throwable클래스를 상속 받는다 그래서 Exception이나 Error를 처리할 때 Throwable로 처리해도 무관하다.
+
+이렇게 상속 관계가 되어 있는 이유는 Exception, Error 클래스는 성격은 다르지만 동일한 이름의 메소드를 사용하여 처리할 수 있기 위함
+
+- Throwable
+  - Throwable()
+  - Throwable(String message)
+  - Throwable(String message, Throwable cause)
+    - 예외 메시지, 예외의 원인인 Throwable 객체
+  - Throwable(Throwable cause)
+- Throwable 클래스에 선언되어 있고, Exception 클래스에서 Overriding한 메소드 중 가장 많이 사용하는 몇몇 메소드
+  - getMessage()
+    - 예외 메시지를 String 형태로 제공 받는다.
+  - toString()
+    - 예외 메시지를 String 형태로 제공 받는다.getMessage()보다 더 자세하게 예외 클래스 이름도 같이 제공한다.
+  - printStackTrace()
+    - 가장 첫 줄에는 예외 메시지를 출력하고, 두 번째 줄부터는 예외가 발생하게 된 메소드들의 호출 관계(스택 트레이스)를 출력해준다.
+    - 많은 양의 로그가 쌓이기 떄문에 개발할 때만 사용하는 것을 권고
+
+### throws
+
+- 예외 발생시키는 방법
+  - try블록 내에 throw라고 명시한 후 개발자가 예외 클래스의 객체를 생성 하거나 생성되어있는 객체 명시한다. 그러면 throw한 문장 이후에 있는 try블록 내의 문장들은 수행 되지 않고, catch블록으로 이동한다.
+  - catch블록 중에 throw한 예외와 동일하거나 상속 관계에 있는 예외가 있다면 그 블록에서 예외를 처리할 수 있다.
+- 만약, 해당하는 예외가 없다면 발생된 예외는 메소드 밖(즉 예외가 발생된 메소드를 호출한 메소드로)으로 던진다.
+
+```java
+ public void throwsException(int number) throws Exception {
+              if(number>12)
+                      throw new Exception("Number is over than 12");
+              System.out.println("Number is " + number);
+      }
+```
+
+- throws 구문
+  - 이렇게 메소드 선언하면, 예외가 발생했을 때 try-catch로 묶어주지 않아도 그 메소드를 호출한 메소드로 예외 처리를 위임한다.
+  - throws 뒤에 선언한 예외가 발생하면 호출한 메소드로 예외가 전달된다.
+  - 여러 개일 때 콤마로 구분
+  - catch블록에서 예외를 throw할 경우에도 메소드 선언의 throws 구문에 해당 예외가 정의되어 있어야 한다.
+  - throws 문장으로 컴파일 오류가 생겼을 경우 해결 방법
+    - 호출한 메소드를 try-catch로 묶는다.
+    - 호출한 메소드에서도 다시 throws 한다. (권장x)
+
+### 자바 예외 처리 전략
+
+![https://user-images.githubusercontent.com/93963499/151953003-dbd4d722-82d2-4ffd-b608-2011e271ec68.png](https://user-images.githubusercontent.com/93963499/151953003-dbd4d722-82d2-4ffd-b608-2011e271ec68.png)
+
+- 임의의 예외 클래스를 만들 때 Throwable이나 그 자식 클래스(Exception , ... )의 상속을 받아야 한다.
+- 자바에서 예외를 처리할 떄에는 표준을 정해 두어야 한다. catch문 내에서 어떻게 처리할지를 명시적으로 선언해 두어야 한다.
+- 임의의 예외 클래스를 만들 때에는, 반드시 try-catch로 묶어줄 필요가 있을 경우에만 Exception 클래스를 확장한다. 일반적으로 실행시 예외를 처리할 수 있는 경우에는 RuntimeException 클래스를 확장하는 것을 권장한다.
+- catch문에서 로그에 남기는 등의 작업을 하고 예외를 throw를 이용해 던져 주어야 문제가 발생한 정확한 원인을 찾을 수 있다.
+
+### 요약
+
+1. 예외의 종류 세가지는 각각 무엇인가요?
+
+- error, unchecked exception, checked exception
+
+1. 프로세스에 치명적인 영향을 주는 문제가 발생한 것을 무엇이라고 하나요?
+
+- error
+
+1. try나 catch 블록 내에서 예외를 발생시키는 예약어는 무엇인가요?
+
+- throws
+
+1. 메소드 선언시 어떤 예외를 던질 수도 있다고 선언할 때 사용하는 키워드는 무엇인가요?
+
+- throws
+
+1. 직접 예외를 만들 때 어떤 클래스의 상속을 받아서 만들어야만 하나요?
+
+- RuntimeException
